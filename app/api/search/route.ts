@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import * as cheerio from "cheerio";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,48 +9,70 @@ export async function GET(req: NextRequest) {
     const maxPrice =
       Number(searchParams.get("maxPrice")) || Infinity;
 
-    const response = await fetch(
-      `https://api.mercadolibre.com/sites/MLM/search?q=${encodeURIComponent(query)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.MELI_ACCESS_TOKEN}`,
-          Accept: "application/json",
-        },
+    const url = `https://listado.mercadolibre.com.mx/${encodeURIComponent(
+      query
+    )}`;
+
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      },
+    });
+
+    const html = await response.text();
+
+    const $ = cheerio.load(html);
+
+    const results: any[] = [];
+
+    $(".ui-search-result").each((_, element) => {
+      const title = $(element)
+        .find(".poly-component__title")
+        .text()
+        .trim();
+
+      const priceText = $(element)
+        .find(".andes-money-amount__fraction")
+        .first()
+        .text()
+        .replace(/,/g, "");
+
+      const price = Number(priceText);
+
+      const thumbnail =
+        $(element)
+          .find("img")
+          .attr("data-src") ||
+        $(element)
+          .find("img")
+          .attr("src");
+
+      const permalink = $(element)
+        .find("a")
+        .attr("href");
+
+      if (
+        title &&
+        price &&
+        price <= maxPrice
+      ) {
+        results.push({
+          title,
+          price,
+          thumbnail,
+          permalink,
+        });
       }
-    );
-
-    const data = await response.json();
-
-    console.log(data);
-
-    if (!data.results || !Array.isArray(data.results)) {
-      return Response.json({
-        error: "No results found",
-        data,
-      });
-    }
-
-    const results = data.results
-      .filter((item: any) => item.price <= maxPrice)
-      .map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        price: item.price,
-        thumbnail: item.thumbnail,
-        permalink: item.permalink,
-      }));
+    });
 
     return Response.json(results);
   } catch (error) {
     console.error(error);
 
     return Response.json(
-      {
-        error: "Search failed",
-      },
-      {
-        status: 500,
-      }
+      { error: "Scraping failed" },
+      { status: 500 }
     );
   }
 }

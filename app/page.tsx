@@ -13,8 +13,8 @@ export default function Home() {
       setLoading(true);
 
       const response = await fetch(
-        `https://api.mercadolibre.com/sites/MLM/search?q=${encodeURIComponent(query)}`
-      );
+  `/api/search?q=${encodeURIComponent(query)}&maxPrice=${maxPrice}`
+);
 
       const data = await response.json();
 
