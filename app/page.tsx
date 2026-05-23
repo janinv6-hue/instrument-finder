@@ -18,18 +18,24 @@ export default function Home() {
 
       const data = await response.json();
 
-      const filtered = data.results
-        .filter(
-          (item: any) =>
-            item.price <= Number(maxPrice || Infinity)
-        )
-        .map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          price: item.price,
-          thumbnail: item.thumbnail,
-          permalink: item.permalink,
-        }));
+      if (!data.results || !Array.isArray(data.results)) {
+  console.error(data);
+  setResults([]);
+  return;
+}
+
+const filtered = data.results
+  .filter(
+    (item: any) =>
+      item.price <= Number(maxPrice || Infinity)
+  )
+  .map((item: any) => ({
+    id: item.id,
+    title: item.title,
+    price: item.price,
+    thumbnail: item.thumbnail,
+    permalink: item.permalink,
+  }));
 
       setResults(filtered);
     } catch (error) {
