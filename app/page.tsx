@@ -9,40 +9,18 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   async function handleSearch() {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const response = await fetch(
-      `/api/search?q=${encodeURIComponent(query)}&maxPrice=${maxPrice}`
-    );
+      const response = await fetch(
+        `/api/search?q=${encodeURIComponent(query)}&maxPrice=${maxPrice}`
+      );
 
-    const data = await response.json();
+      const data = await response.json();
 
-    console.log(data);
+      console.log(data);
 
-    setResults(data);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-}
-}
-
-const filtered = data.results
-  .filter(
-    (item: any) =>
-      item.price <= Number(maxPrice || Infinity)
-  )
-  .map((item: any) => ({
-    id: item.id,
-    title: item.title,
-    price: item.price,
-    thumbnail: item.thumbnail,
-    permalink: item.permalink,
-  }));
-
-      setResults(filtered);
+      setResults(data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -84,18 +62,21 @@ const filtered = data.results
       {loading && <p>Buscando...</p>}
 
       <div className="space-y-4">
-        {results.map((item) => (
+        {results.map((item: any, index: number) => (
           <a
-            key={item.id}
+            key={index}
             href={item.permalink}
             target="_blank"
+            rel="noopener noreferrer"
             className="border p-4 rounded flex gap-4 items-center block"
           >
-            <img
-              src={item.thumbnail}
-              alt={item.title}
-              className="w-24 h-24 object-cover"
-            />
+            {item.thumbnail && (
+              <img
+                src={item.thumbnail}
+                alt={item.title}
+                className="w-24 h-24 object-cover"
+              />
+            )}
 
             <div>
               <h2 className="font-bold">
