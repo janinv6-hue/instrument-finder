@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
         permalink: item.permalink,
       }));
 
-    return Response.json(results);
+   return Response.json(data);
   } catch (error) {
     console.error(error);
 
