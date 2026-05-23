@@ -9,16 +9,22 @@ export async function GET(req: NextRequest) {
       Number(searchParams.get("maxPrice")) || Infinity;
 
     const response = await fetch(
-      `https://api.mercadolibre.com/sites/MLM/search?q=${encodeURIComponent(query)}`
+      `https://api.mercadolibre.com/sites/MLM/search?q=${encodeURIComponent(query)}`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          Accept: "application/json",
+        },
+      }
     );
 
-    console.log("STATUS:", response.status);
+    const data = await response.json();
 
-    const text = await response.text();
+    console.log(data);
 
-    console.log("RAW RESPONSE:", text);
-
-    const data = JSON.parse(text);
+    if (!data.results || !Array.isArray(data.results)) {
+      return Response.json([]);
+    }
 
     const results = data.results
       .filter((item: any) => item.price <= maxPrice)
@@ -35,7 +41,7 @@ export async function GET(req: NextRequest) {
     console.error(error);
 
     return Response.json(
-      { error: "Algo salió mal" },
+      { error: "Search failed" },
       { status: 500 }
     );
   }
