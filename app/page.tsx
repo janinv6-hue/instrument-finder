@@ -3,8 +3,6 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [query, setQuery] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -13,7 +11,7 @@ export default function Home() {
       setLoading(true);
 
       const response = await fetch(
-        `/api/search?q=${encodeURIComponent(query)}&maxPrice=${maxPrice}`
+        "/api/facebook-search"
       );
 
       const data = await response.json();
@@ -30,65 +28,51 @@ export default function Home() {
 
   return (
     <main className="p-10">
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="text-4xl font-bold mb-6">
         Instrument Finder
       </h1>
 
-      <div className="flex gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Instrumento"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="border p-2 rounded w-64"
-        />
+      <button
+        onClick={handleSearch}
+        className="bg-black text-white px-6 py-3 rounded mb-8"
+      >
+        Buscar ofertas
+      </button>
 
-        <input
-          type="number"
-          placeholder="Precio máximo"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          className="border p-2 rounded w-48"
-        />
-
-        <button
-          onClick={handleSearch}
-          className="bg-black text-white px-4 py-2 rounded"
-        >
-          Buscar
-        </button>
-      </div>
-
-      {loading && <p>Buscando...</p>}
+      {loading && (
+        <p className="mb-6">
+          Buscando en Facebook Marketplace...
+        </p>
+      )}
 
       <div className="space-y-4">
-        {results.map((item: any, index: number) => (
-          <a
-            key={index}
-            href={item.permalink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="border p-4 rounded flex gap-4 items-center block"
-          >
-            {item.thumbnail && (
-              <img
-                src={item.thumbnail}
-                alt={item.title}
-                className="w-24 h-24 object-cover"
-              />
-            )}
+        {results.map(
+          (item: any, index: number) => (
+            <a
+              key={index}
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border rounded p-4 block hover:bg-gray-100"
+            >
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-gray-500">
+                    {item.category}
+                  </p>
 
-            <div>
-              <h2 className="font-bold">
-                {item.title}
-              </h2>
+                  <h2 className="font-bold text-lg">
+                    {item.title}
+                  </h2>
+                </div>
 
-              <p className="text-lg">
-                ${item.price}
-              </p>
-            </div>
-          </a>
-        ))}
+                <p className="text-2xl font-bold">
+                  ${item.price}
+                </p>
+              </div>
+            </a>
+          )
+        )}
       </div>
     </main>
   );
