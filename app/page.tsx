@@ -9,21 +9,34 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   async function handleSearch() {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const response = await fetch(
-      `/api/search?q=${query}&maxPrice=${maxPrice}`
-    );
+      const response = await fetch(
+        `https://api.mercadolibre.com/sites/MLM/search?q=${encodeURIComponent(query)}`
+      );
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (Array.isArray(data)) {
-  setResults(data);
-} else {
-  console.error(data);
-  setResults([]);
-}
-    setLoading(false);
+      const filtered = data.results
+        .filter(
+          (item: any) =>
+            item.price <= Number(maxPrice || Infinity)
+        )
+        .map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          thumbnail: item.thumbnail,
+          permalink: item.permalink,
+        }));
+
+      setResults(filtered);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -61,16 +74,28 @@ export default function Home() {
 
       <div className="space-y-4">
         {results.map((item) => (
-          <div
+          <a
             key={item.id}
-            className="border p-4 rounded"
+            href={item.permalink}
+            target="_blank"
+            className="border p-4 rounded flex gap-4 items-center block"
           >
-            <h2 className="font-bold">
-              {item.title}
-            </h2>
+            <img
+              src={item.thumbnail}
+              alt={item.title}
+              className="w-24 h-24 object-cover"
+            />
 
-            <p>${item.price}</p>
-          </div>
+            <div>
+              <h2 className="font-bold">
+                {item.title}
+              </h2>
+
+              <p className="text-lg">
+                ${item.price}
+              </p>
+            </div>
+          </a>
         ))}
       </div>
     </main>
