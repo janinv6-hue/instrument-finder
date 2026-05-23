@@ -26,45 +26,45 @@ export async function GET(req: NextRequest) {
 
     const results: any[] = [];
 
-   $("li.ui-search-layout__item").each((_, element) => {
-  const title = $(element)
-    .find("h3")
-    .text()
-    .trim();
+    $("li.ui-search-layout__item").each((_, element) => {
+      const title = $(element)
+        .find("h3")
+        .text()
+        .trim();
 
-  const priceText = $(element)
-    .find(".andes-money-amount__fraction")
-    .first()
-    .text()
-    .replace(/,/g, "");
+      const priceText = $(element)
+        .find(".andes-money-amount__fraction")
+        .first()
+        .text()
+        .replace(/,/g, "");
 
-  const price = Number(priceText);
+      const price = Number(priceText);
 
-  const thumbnail =
-    $(element)
-      .find("img")
-      .attr("data-src") ||
-    $(element)
-      .find("img")
-      .attr("src");
+      const thumbnail =
+        $(element)
+          .find("img")
+          .attr("data-src") ||
+        $(element)
+          .find("img")
+          .attr("src");
 
-  const permalink = $(element)
-    .find("a")
-    .attr("href");
+      const permalink = $(element)
+        .find("a")
+        .attr("href");
 
-  if (
-    title &&
-    price &&
-    price <= maxPrice
-  ) {
-    results.push({
-      title,
-      price,
-      thumbnail,
-      permalink,
+      if (
+        title &&
+        price &&
+        price <= maxPrice
+      ) {
+        results.push({
+          title,
+          price,
+          thumbnail,
+          permalink,
+        });
+      }
     });
-  }
-});
 
     return Response.json(results);
   } catch (error) {
