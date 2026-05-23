@@ -9,19 +9,24 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   async function handleSearch() {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const response = await fetch(
-  `/api/search?q=${encodeURIComponent(query)}&maxPrice=${maxPrice}`
-);
+    const response = await fetch(
+      `/api/search?q=${encodeURIComponent(query)}&maxPrice=${maxPrice}`
+    );
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!data.results || !Array.isArray(data.results)) {
-  console.error(data);
-  setResults([]);
-  return;
+    console.log(data);
+
+    setResults(data);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+}
 }
 
 const filtered = data.results
